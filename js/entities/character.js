@@ -3,7 +3,7 @@
 import { VIRTUAL_WIDTH } from '../canvas.js';
 
 const JUMP_SPEED = 3600; // pixels per second horizontal
-const SWING_DURATION = 0.25; // seconds
+const SWING_DURATION = 0.15; // seconds (snappy for repeat hits)
 const STUN_DURATION = 2.0;
 
 let x = VIRTUAL_WIDTH / 2;

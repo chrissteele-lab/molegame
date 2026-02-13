@@ -15,7 +15,7 @@ export const MOLE_CONFIG = {
     popUpSpeed: 400,
 
     // The maximum height the mole reaches above the hole (pixels)
-    popUpHeight: 100,
+    popUpHeight: 10,
 
     // How fast the mole retreats back into the hole (pixels per second)
     retreatSpeed: 1000,

@@ -197,7 +197,7 @@ function render() {
 
 // === Game Logic ===
 function handleGameClick(x, y) {
-    if (Character.isStunned() || Character.isSwinging()) return;
+    if (Character.isStunned()) return;
 
     const mole = MoleManager.getMoleAt(x, y, LAWN_TOP, LAWN_HEIGHT);
     if (!mole) return;
