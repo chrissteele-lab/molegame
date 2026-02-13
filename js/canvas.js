@@ -31,10 +31,7 @@ export function resize() {
     canvas.style.width = displayW + 'px';
     canvas.style.height = displayH + 'px';
 
-    offsetX = (cw - displayW) / 2;
-    offsetY = (ch - displayH) / 2;
-    canvas.style.marginLeft = offsetX + 'px';
-    canvas.style.marginTop = offsetY + 'px';
+    // Centering is handled by CSS flexbox on #game-container
 }
 
 /** Convert screen pixel coords to virtual game coords */
