@@ -1,6 +1,7 @@
 // background.js — Sky, lawn, soil layer rendering
 
 import { VIRTUAL_WIDTH, VIRTUAL_HEIGHT } from '../canvas.js';
+import { MOLE_CONFIG, TRAFFIC_CONFIG } from '../config.js';
 
 // Layout constants (exported for other renderers)
 export const HORIZON_Y = VIRTUAL_HEIGHT * 0.35;
@@ -15,7 +16,9 @@ let trackPhase = 0;
 
 export function updateBackground(dt, isFrozen) {
     if (!isFrozen) {
-        trackPhase = (trackPhase + dt * 120) % 40; // 120 is speed, 40 is spacing
+        // Track speed = fastest possible mole speed
+        const maxSpeed = MOLE_CONFIG.moveSpeed * (1 + TRAFFIC_CONFIG.speedVariance);
+        trackPhase = (trackPhase + dt * maxSpeed) % 40;
     }
 }
 
@@ -73,21 +76,24 @@ function drawPubBackground(ctx) {
     }
 
     // === Conveyor Belt Track (Persistent) ===
-    const trackY = LAWN_TOP + LAWN_HEIGHT * 0.6;
+    // Position track so barrel bottoms rest on it.
+    // Barrel baseY = LAWN_TOP + LAWN_HEIGHT * 0.6, barrel bottom = baseY + 47
+    const baseY = LAWN_TOP + LAWN_HEIGHT * 0.6;
+    const trackY = baseY + 47; // Top of the track = bottom of barrel
     const trackWidth = VIRTUAL_WIDTH;
 
     // Main belt track
     ctx.fillStyle = '#222';
-    ctx.fillRect(0, trackY - 12, trackWidth, 24);
+    ctx.fillRect(0, trackY, trackWidth, 24);
 
     // Metal rails
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(0, trackY - 12);
-    ctx.lineTo(trackWidth, trackY - 12);
-    ctx.moveTo(0, trackY + 12);
-    ctx.lineTo(trackWidth, trackY + 12);
+    ctx.moveTo(0, trackY);
+    ctx.lineTo(trackWidth, trackY);
+    ctx.moveTo(0, trackY + 24);
+    ctx.lineTo(trackWidth, trackY + 24);
     ctx.stroke();
 
     // Animated belt tracks / chain
@@ -99,8 +105,8 @@ function drawPubBackground(ctx) {
     for (let x = -spacing; x < trackWidth + spacing; x += spacing) {
         const lx = x + trackPhase;
         ctx.beginPath();
-        ctx.moveTo(lx, trackY - 10);
-        ctx.lineTo(lx, trackY + 10);
+        ctx.moveTo(lx, trackY + 2);
+        ctx.lineTo(lx, trackY + 22);
         ctx.stroke();
     }
 
