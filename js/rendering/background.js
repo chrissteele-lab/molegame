@@ -11,6 +11,14 @@ export const SOIL_TOP = LAWN_BOTTOM;
 export const SOIL_BOTTOM = VIRTUAL_HEIGHT * 0.88;
 export const HUD_TOP = SOIL_BOTTOM;
 
+let trackPhase = 0;
+
+export function updateBackground(dt, isFrozen) {
+    if (!isFrozen) {
+        trackPhase = (trackPhase + dt * 120) % 40; // 120 is speed, 40 is spacing
+    }
+}
+
 export function drawBackground(ctx, level = 'lawn') {
     if (level === 'pub') {
         drawPubBackground(ctx);
@@ -61,6 +69,38 @@ function drawPubBackground(ctx) {
         ctx.beginPath();
         ctx.moveTo(x, SOIL_TOP);
         ctx.lineTo(x, SOIL_BOTTOM);
+        ctx.stroke();
+    }
+
+    // === Conveyor Belt Track (Persistent) ===
+    const trackY = LAWN_TOP + LAWN_HEIGHT * 0.6;
+    const trackWidth = VIRTUAL_WIDTH;
+
+    // Main belt track
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, trackY - 12, trackWidth, 24);
+
+    // Metal rails
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, trackY - 12);
+    ctx.lineTo(trackWidth, trackY - 12);
+    ctx.moveTo(0, trackY + 12);
+    ctx.lineTo(trackWidth, trackY + 12);
+    ctx.stroke();
+
+    // Animated belt tracks / chain
+    const spacing = 40;
+    // The speed is now managed by the global trackPhase variable, which is updated in updateBackground.
+
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 2;
+    for (let x = -spacing; x < trackWidth + spacing; x += spacing) {
+        const lx = x + trackPhase;
+        ctx.beginPath();
+        ctx.moveTo(lx, trackY - 10);
+        ctx.lineTo(lx, trackY + 10);
         ctx.stroke();
     }
 

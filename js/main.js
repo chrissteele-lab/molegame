@@ -7,7 +7,7 @@ import * as Character from './entities/character.js';
 import * as Scoring from './systems/scoring.js';
 import * as Difficulty from './systems/difficulty.js';
 import { initPhoto, skipPhoto, getFaceImage } from './systems/photo.js';
-import { drawBackground, LAWN_TOP, LAWN_HEIGHT } from './rendering/background.js';
+import { drawBackground, updateBackground, LAWN_TOP, LAWN_HEIGHT } from './rendering/background.js';
 import { drawHoles, drawActiveMoles } from './rendering/moleRenderer.js';
 import { drawCharacter } from './rendering/characterRenderer.js';
 import { drawHUD, drawStunOverlay, initUI, updateUI, addBonusPopup, addScorePopup } from './rendering/ui.js';
@@ -150,6 +150,7 @@ function update(dt) {
     Difficulty.tickDifficulty(dt);
     Scoring.tick(dt);
     MoleManager.update(dt);
+    updateBackground(dt, MoleManager.isFrozen());
     Character.update(dt);
     updateUI(dt);
 

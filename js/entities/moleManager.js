@@ -179,3 +179,7 @@ export function getMoleAt(x, y, lawnTop, lawnHeight) {
 
 export function getMoles() { return moles; }
 
+export function isFrozen() {
+    return MOLE_CONFIG.stopOnPop && moles.some(m => m.state === MoleState.POPPING_UP || m.state === MoleState.UP);
+}
+

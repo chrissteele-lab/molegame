@@ -97,21 +97,15 @@ function drawDirtDisturbance(ctx, x, y, phase) {
 }
 
 function drawPubDisturbance(ctx, x, y, phase) {
-    // Conveyor belt segment
-    ctx.fillStyle = '#333';
-    ctx.fillRect(x - 38, y - 5, 76, 12);
-
-    // Belt dots/texture
+    // Mechanical base / Bracket for the barrel
     ctx.fillStyle = '#111';
-    for (let i = -1; i <= 1; i++) {
-        const rx = x + i * 25 + (phase % 1) * 10;
-        const normalizedX = (rx - (x - 38)) % 76;
-        ctx.beginPath();
-        ctx.arc(normalizedX + (x - 38), y + 1, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    ctx.fillRect(x - 20, y - 2, 40, 6);
+    ctx.fillStyle = '#333';
+    ctx.fillRect(x - 18, y, 36, 3);
 
-    // Barrel visible while moving (empty)
+    // Barrel is already drawn in drawHoles/drawActiveMoles calling drawBarrel/drawBarrelRing
+    // But drawPubDisturbance is called specifically for "underground" moles.
+    // So we just call drawBarrel/drawBarrelRing here to show the moving empty barrel.
     drawBarrel(ctx, x, y);
     drawBarrelRing(ctx, x, y);
 }
