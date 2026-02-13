@@ -99,16 +99,21 @@ function drawDirtDisturbance(ctx, x, y, phase) {
 function drawPubDisturbance(ctx, x, y, phase) {
     // Conveyor belt segment
     ctx.fillStyle = '#333';
-    ctx.fillRect(x - 35, y - 5, 70, 10);
+    ctx.fillRect(x - 38, y - 5, 76, 12);
 
-    // Belt rollers
+    // Belt dots/texture
     ctx.fillStyle = '#111';
     for (let i = -1; i <= 1; i++) {
         const rx = x + i * 25 + (phase % 1) * 10;
+        const normalizedX = (rx - (x - 38)) % 76;
         ctx.beginPath();
-        ctx.arc(rx % 70 + (x - 35), y, 3, 0, Math.PI * 2);
+        ctx.arc(normalizedX + (x - 38), y + 1, 2.5, 0, Math.PI * 2);
         ctx.fill();
     }
+
+    // Barrel visible while moving (empty)
+    drawBarrel(ctx, x, y);
+    drawBarrelRing(ctx, x, y);
 }
 
 function drawHole(ctx, x, y) {
@@ -120,32 +125,68 @@ function drawHole(ctx, x, y) {
 }
 
 function drawBarrel(ctx, x, y) {
-    // Barrel body (below the rim)
-    ctx.fillStyle = '#4e342e'; // Wood brown
+    const w = 30;
+    // Dark interior (deeper shadow)
+    ctx.fillStyle = '#120c08';
     ctx.beginPath();
-    ctx.ellipse(x, y + 15, 28, 20, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Barrel interior
-    ctx.fillStyle = '#1a120b';
-    ctx.beginPath();
-    ctx.ellipse(x, y, 28, 10, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y, w, 11, 0, 0, Math.PI * 2);
     ctx.fill();
 }
 
 function drawBarrelRing(ctx, x, y) {
-    // Top rim of the barrel
-    ctx.strokeStyle = '#3e2723';
-    ctx.lineWidth = 5;
+    const w = 30;
+
+    // Barrel Body (front half) - TALLER/DEEPER
+    ctx.fillStyle = '#5d4037';
     ctx.beginPath();
-    ctx.ellipse(x, y, 30, 11, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + 15, w, 32, 0, 0, Math.PI);
+    ctx.fill();
+
+    // Wood Planks (vertical lines)
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 1.5;
+    for (let i = -3; i <= 3; i++) {
+        const sx = x + i * 8;
+        if (Math.abs(sx - x) > w - 2) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(sx, y + 5);
+        ctx.lineTo(sx, y + 45); // Extended down
+        ctx.stroke();
+    }
+
+    // Metal Bands (darker, more robust)
+    ctx.strokeStyle = '#2b1d16';
+    ctx.lineWidth = 5;
+
+    // Top band
+    ctx.beginPath();
+    ctx.ellipse(x, y + 12, w + 1, 11, 0, 0, Math.PI);
     ctx.stroke();
 
-    // Metal hoop
-    ctx.strokeStyle = '#757575';
-    ctx.lineWidth = 3;
+    // Middle band
     ctx.beginPath();
-    ctx.ellipse(x, y + 5, 29, 10, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + 28, w - 1, 9, 0, 0, Math.PI);
+    ctx.stroke();
+
+    // Bottom band
+    ctx.beginPath();
+    ctx.ellipse(x, y + 42, w - 5, 6, 0, 0, Math.PI);
+    ctx.stroke();
+
+    // Rivets (brass look)
+    ctx.fillStyle = '#9e7e5d';
+    for (let i = -1; i <= 1; i++) {
+        ctx.beginPath();
+        ctx.arc(x + i * 22, y + 22, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Top Rim (Sturdy metal)
+    ctx.strokeStyle = '#3e2723';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.ellipse(x, y, w + 2, 12, 0, 0, Math.PI * 2);
     ctx.stroke();
 }
 
