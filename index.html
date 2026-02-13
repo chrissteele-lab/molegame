@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Whack-a-Mole — A fun, responsive browser game with photo face compositing!">
+    <title>Whack-a-Mole!</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Title Screen Overlay -->
+        <div id="title-screen" class="overlay">
+            <div class="overlay-content">
+                <h1 class="game-title">WHACK-A-MOLE!</h1>
+                <p class="game-subtitle">Smash those moles before time runs out!</p>
+                <button id="btn-start" class="btn btn-primary">START GAME</button>
+            </div>
+        </div>
+
+        <!-- Photo Upload Overlay -->
+        <div id="photo-screen" class="overlay hidden">
+            <div class="overlay-content">
+                <h2>Add Your Face!</h2>
+                <p>Upload a front-facing photo to become the mole smasher</p>
+                <div id="photo-preview-container">
+                    <div id="photo-preview">
+                        <span id="photo-placeholder">📷</span>
+                        <video id="camera-feed" class="hidden" autoplay playsinline muted></video>
+                        <img id="photo-img" class="hidden" alt="Your face">
+                    </div>
+                    <div id="oval-mask"></div>
+                </div>
+                <div class="photo-controls">
+                    <button id="btn-camera" class="btn btn-secondary">Use Camera</button>
+                    <button id="btn-capture" class="btn btn-primary hidden">Snap Photo</button>
+                    <label for="photo-input" class="btn btn-secondary" id="btn-upload-label">
+                        Upload File
+                        <input type="file" id="photo-input" accept="image/*">
+                    </label>
+                    <button id="btn-retake" class="btn btn-ghost hidden">Retake</button>
+                    <button id="btn-skip-photo" class="btn btn-ghost">Skip</button>
+                </div>
+                <button id="btn-play" class="btn btn-primary hidden">LET'S GO!</button>
+            </div>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="gameover-screen" class="overlay hidden">
+            <div class="overlay-content">
+                <h2 class="gameover-title">TIME'S UP!</h2>
+                <div class="score-display">
+                    <div class="score-label">SCORE</div>
+                    <div id="final-score" class="score-value">0</div>
+                </div>
+                <div class="score-display hi-score">
+                    <div class="score-label">BEST</div>
+                    <div id="final-hiscore" class="score-value">0</div>
+                </div>
+                <button id="btn-retry" class="btn btn-primary">PLAY AGAIN</button>
+                <button id="btn-menu" class="btn btn-ghost">MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts (ES modules) -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
