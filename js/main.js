@@ -23,6 +23,7 @@ const State = {
 
 let state = State.TITLE;
 let lastTime = 0;
+let selectedLevel = 'lawn';
 
 // Screen shake
 let shakeIntensity = 0;
@@ -82,6 +83,24 @@ function init() {
     if (menuBtn) {
         menuBtn.addEventListener('click', () => {
             setState(State.TITLE);
+        });
+    }
+
+    // Level selection buttons
+    const lawnBtn = document.getElementById('btn-level-lawn');
+    const pubBtn = document.getElementById('btn-level-pub');
+
+    if (lawnBtn && pubBtn) {
+        lawnBtn.addEventListener('click', () => {
+            selectedLevel = 'lawn';
+            lawnBtn.classList.add('active');
+            pubBtn.classList.remove('active');
+        });
+
+        pubBtn.addEventListener('click', () => {
+            selectedLevel = 'pub';
+            pubBtn.classList.add('active');
+            lawnBtn.classList.remove('active');
         });
     }
 
@@ -165,10 +184,10 @@ function render() {
     ctx.clearRect(-10, -10, VIRTUAL_WIDTH + 20, VIRTUAL_HEIGHT + 20);
 
     // Draw layers
-    drawBackground(ctx);
-    drawHoles(ctx, MoleManager.getMoles());
+    drawBackground(ctx, selectedLevel);
+    drawHoles(ctx, MoleManager.getMoles(), selectedLevel);
     drawCharacter(ctx);
-    drawActiveMoles(ctx, MoleManager.getMoles());
+    drawActiveMoles(ctx, MoleManager.getMoles(), selectedLevel);
     drawHUD(ctx);
     drawStunOverlay(ctx);
 
@@ -230,6 +249,8 @@ function endGame() {
     finalHiScore.textContent = String(hiScore);
     setState(State.GAME_OVER);
 }
+
+export function getSelectedLevel() { return selectedLevel; }
 
 // === Boot ===
 init();

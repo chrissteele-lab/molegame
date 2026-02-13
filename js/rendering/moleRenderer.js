@@ -8,21 +8,29 @@ import { MOLE_CONFIG } from '../config.js';
 
 
 // -- Layer 1: Holes & Dirt (Background) --
-export function drawHoles(ctx, moles) {
+export function drawHoles(ctx, moles, level = 'lawn') {
     for (const mole of moles) {
         const baseY = mole.getBaseY(LAWN_TOP, LAWN_HEIGHT);
         const x = mole.x;
 
         if (mole.state === MoleState.UNDERGROUND) {
-            drawDirtDisturbance(ctx, x, baseY, mole.dirtPhase);
+            if (level === 'pub') {
+                drawPubDisturbance(ctx, x, baseY, mole.dirtPhase);
+            } else {
+                drawDirtDisturbance(ctx, x, baseY, mole.dirtPhase);
+            }
         } else {
-            drawHole(ctx, x, baseY);
+            if (level === 'pub') {
+                drawBarrel(ctx, x, baseY);
+            } else {
+                drawHole(ctx, x, baseY);
+            }
         }
     }
 }
 
 // -- Layer 2: Active Moles (Foreground) --
-export function drawActiveMoles(ctx, moles) {
+export function drawActiveMoles(ctx, moles, level = 'lawn') {
     for (const mole of moles) {
         if (mole.state === MoleState.UNDERGROUND) continue;
 
@@ -30,7 +38,7 @@ export function drawActiveMoles(ctx, moles) {
         const visY = mole.getVisibleY(LAWN_TOP, LAWN_HEIGHT);
         const x = mole.x;
 
-        // Clip above ground line (mole emerges from ground)
+        // Clip above ground line (mole emerges from ground/barrel)
         ctx.save();
         ctx.beginPath();
         ctx.rect(x - 50, 0, 100, baseY);
@@ -41,8 +49,12 @@ export function drawActiveMoles(ctx, moles) {
 
         ctx.restore();
 
-        // Draw dirt ring on top of the hole (covers mole's bottom)
-        drawDirtRing(ctx, x, baseY);
+        // Draw top of the hole/barrel
+        if (level === 'pub') {
+            drawBarrelRing(ctx, x, baseY);
+        } else {
+            drawDirtRing(ctx, x, baseY);
+        }
     }
 }
 
@@ -84,12 +96,57 @@ function drawDirtDisturbance(ctx, x, y, phase) {
     }
 }
 
+function drawPubDisturbance(ctx, x, y, phase) {
+    // Conveyor belt segment
+    ctx.fillStyle = '#333';
+    ctx.fillRect(x - 35, y - 5, 70, 10);
+
+    // Belt rollers
+    ctx.fillStyle = '#111';
+    for (let i = -1; i <= 1; i++) {
+        const rx = x + i * 25 + (phase % 1) * 10;
+        ctx.beginPath();
+        ctx.arc(rx % 70 + (x - 35), y, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
 function drawHole(ctx, x, y) {
     // Dark hole
     ctx.fillStyle = '#2E1B0E';
     ctx.beginPath();
     ctx.ellipse(x, y, 28, 10, 0, 0, Math.PI * 2);
     ctx.fill();
+}
+
+function drawBarrel(ctx, x, y) {
+    // Barrel body (below the rim)
+    ctx.fillStyle = '#4e342e'; // Wood brown
+    ctx.beginPath();
+    ctx.ellipse(x, y + 15, 28, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Barrel interior
+    ctx.fillStyle = '#1a120b';
+    ctx.beginPath();
+    ctx.ellipse(x, y, 28, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawBarrelRing(ctx, x, y) {
+    // Top rim of the barrel
+    ctx.strokeStyle = '#3e2723';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 30, 11, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Metal hoop
+    ctx.strokeStyle = '#757575';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 5, 29, 10, 0, 0, Math.PI * 2);
+    ctx.stroke();
 }
 
 function drawDirtRing(ctx, x, y) {

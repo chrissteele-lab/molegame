@@ -11,7 +11,65 @@ export const SOIL_TOP = LAWN_BOTTOM;
 export const SOIL_BOTTOM = VIRTUAL_HEIGHT * 0.88;
 export const HUD_TOP = SOIL_BOTTOM;
 
-export function drawBackground(ctx) {
+export function drawBackground(ctx, level = 'lawn') {
+    if (level === 'pub') {
+        drawPubBackground(ctx);
+    } else {
+        drawLawnBackground(ctx);
+    }
+}
+
+function drawPubBackground(ctx) {
+    // === Dark Pub Atmosphere ===
+    ctx.fillStyle = '#1a120b'; // Dark brown wall
+    ctx.fillRect(0, 0, VIRTUAL_WIDTH, HORIZON_Y);
+
+    // Wall decor - simple framed pictures
+    ctx.fillStyle = '#3c2a21';
+    ctx.fillRect(100, 30, 80, 60);
+    ctx.fillRect(VIRTUAL_WIDTH - 180, 40, 70, 90);
+
+    // === Bar Counter / Back Area ===
+    const counterGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, LAWN_BOTTOM);
+    counterGrad.addColorStop(0, '#3c2a21'); // Deep wood
+    counterGrad.addColorStop(1, '#251711');
+    ctx.fillStyle = counterGrad;
+    ctx.fillRect(0, LAWN_TOP, VIRTUAL_WIDTH, LAWN_HEIGHT);
+
+    // Polish reflection on bar surface
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 15; i++) {
+        const y = LAWN_TOP + (i / 15) * LAWN_HEIGHT;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(VIRTUAL_WIDTH, y);
+        ctx.stroke();
+    }
+
+    // === Wooden Floor ===
+    const floorGrad = ctx.createLinearGradient(0, SOIL_TOP, 0, SOIL_BOTTOM);
+    floorGrad.addColorStop(0, '#543a20');
+    floorGrad.addColorStop(1, '#3c2a21');
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, SOIL_TOP, VIRTUAL_WIDTH, SOIL_BOTTOM - SOIL_TOP);
+
+    // Floor planks
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.lineWidth = 2;
+    for (let x = 0; x < VIRTUAL_WIDTH; x += 60) {
+        ctx.beginPath();
+        ctx.moveTo(x, SOIL_TOP);
+        ctx.lineTo(x, SOIL_BOTTOM);
+        ctx.stroke();
+    }
+
+    // === HUD background ===
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(0, HUD_TOP, VIRTUAL_WIDTH, VIRTUAL_HEIGHT - HUD_TOP);
+}
+
+function drawLawnBackground(ctx) {
     // === Sky Gradient ===
     const skyGrad = ctx.createLinearGradient(0, 0, 0, HORIZON_Y);
     skyGrad.addColorStop(0, '#87CEEB');
