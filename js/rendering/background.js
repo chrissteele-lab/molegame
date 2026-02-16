@@ -192,7 +192,7 @@ function drawRockBackground(ctx) {
     ctx.fill();
 
     // === Stage Platform (where the rockstar stands) ===
-    const stageBottom = LAWN_TOP + 80; // stage ends here, crowd begins below
+    const stageBottom = LAWN_TOP + 110; // stage ends here, crowd begins below
 
     // Stage floor
     const stageGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, stageBottom);
@@ -239,7 +239,7 @@ function drawRockBackground(ctx) {
 
     // Draw rows of crowd heads (back to front, getting larger)
     const crowdHeight = LAWN_BOTTOM - crowdTop;
-    const rows = 5;
+    const rows = 4;
     for (let row = 0; row < rows; row++) {
         const rowY = crowdTop + (row / rows) * crowdHeight + crowdHeight * 0.1;
         const headSize = 6 + row * 2.5;
