@@ -191,18 +191,57 @@ function drawRockBackground(ctx) {
     ctx.lineTo(VIRTUAL_WIDTH, HORIZON_Y);
     ctx.fill();
 
-    // === Dense Crowd (fills the entire LAWN play area) ===
+    // === Stage Platform (where the rockstar stands) ===
+    const stageBottom = LAWN_TOP + 80; // stage ends here, crowd begins below
+
+    // Stage floor
+    const stageGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, stageBottom);
+    stageGrad.addColorStop(0, '#1a1a1a');
+    stageGrad.addColorStop(1, '#111');
+    ctx.fillStyle = stageGrad;
+    ctx.fillRect(0, LAWN_TOP, VIRTUAL_WIDTH, stageBottom - LAWN_TOP);
+
+    // Stage floor planks
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < VIRTUAL_WIDTH; x += 70) {
+        ctx.beginPath();
+        ctx.moveTo(x, LAWN_TOP);
+        ctx.lineTo(x, stageBottom);
+        ctx.stroke();
+    }
+
+    // Footlights along front of stage
+    for (let i = 0; i < 12; i++) {
+        const lx = (i + 0.5) * (VIRTUAL_WIDTH / 12);
+        const hue = (t * 40 + i * 30) % 360;
+        const pulse = 0.4 + Math.sin(t * 2 + i * 0.8) * 0.15;
+        ctx.fillStyle = `hsla(${hue}, 80%, 60%, ${pulse})`;
+        ctx.beginPath();
+        ctx.arc(lx, stageBottom - 3, 4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Stage front edge (thick metal lip)
+    ctx.fillStyle = '#333';
+    ctx.fillRect(0, stageBottom - 2, VIRTUAL_WIDTH, 6);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, stageBottom + 4, VIRTUAL_WIDTH, 3);
+
+    // === Dense Crowd (fills area below the stage) ===
     // Dark base for the crowd
-    const crowdGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, LAWN_BOTTOM);
+    const crowdTop = stageBottom + 7;
+    const crowdGrad = ctx.createLinearGradient(0, crowdTop, 0, LAWN_BOTTOM);
     crowdGrad.addColorStop(0, '#0d0a15');
     crowdGrad.addColorStop(1, '#08060e');
     ctx.fillStyle = crowdGrad;
-    ctx.fillRect(0, LAWN_TOP, VIRTUAL_WIDTH, LAWN_HEIGHT);
+    ctx.fillRect(0, crowdTop, VIRTUAL_WIDTH, LAWN_BOTTOM - crowdTop);
 
     // Draw rows of crowd heads (back to front, getting larger)
+    const crowdHeight = LAWN_BOTTOM - crowdTop;
     const rows = 5;
     for (let row = 0; row < rows; row++) {
-        const rowY = LAWN_TOP + (row / rows) * LAWN_HEIGHT + LAWN_HEIGHT * 0.15;
+        const rowY = crowdTop + (row / rows) * crowdHeight + crowdHeight * 0.1;
         const headSize = 6 + row * 2.5;
         const spacing = 22 + row * 4;
         const rowOffset = (row % 2) * (spacing / 2);
@@ -232,7 +271,7 @@ function drawRockBackground(ctx) {
     ctx.lineWidth = 3;
     for (let i = 0; i < 15; i++) {
         const hx = 40 + i * 90 + Math.sin(i * 4.3) * 30;
-        const baseRowY = LAWN_TOP + ((i * 3) % rows) / rows * LAWN_HEIGHT + LAWN_HEIGHT * 0.15;
+        const baseRowY = crowdTop + ((i * 3) % rows) / rows * crowdHeight + crowdHeight * 0.1;
         const bounceY = Math.sin(t * 3 + i * 1.7) * 8;
         const handH = 18 + Math.sin(t * 2 + i * 2.3) * 5;
         const hue = (t * 30 + i * 40) % 360;
