@@ -16,12 +16,16 @@ export function drawHoles(ctx, moles, level = 'lawn') {
         if (mole.state === MoleState.UNDERGROUND) {
             if (level === 'pub') {
                 drawPubDisturbance(ctx, x, baseY, mole.dirtPhase);
+            } else if (level === 'rock') {
+                drawRockDisturbance(ctx, x, baseY, mole.dirtPhase);
             } else {
                 drawDirtDisturbance(ctx, x, baseY, mole.dirtPhase);
             }
         } else {
             if (level === 'pub') {
                 drawBarrel(ctx, x, baseY);
+            } else if (level === 'rock') {
+                drawRockTrapdoor(ctx, x, baseY);
             } else {
                 drawHole(ctx, x, baseY);
             }
@@ -38,7 +42,7 @@ export function drawActiveMoles(ctx, moles, level = 'lawn') {
         const visY = mole.getVisibleY(LAWN_TOP, LAWN_HEIGHT);
         const x = mole.x;
 
-        // Clip above ground line (mole emerges from ground/barrel)
+        // Clip above ground line (mole emerges from ground/barrel/trapdoor)
         ctx.save();
         ctx.beginPath();
         ctx.rect(x - 50, 0, 100, baseY);
@@ -49,9 +53,11 @@ export function drawActiveMoles(ctx, moles, level = 'lawn') {
 
         ctx.restore();
 
-        // Draw top of the hole/barrel
+        // Draw top of the hole/barrel/trapdoor ring
         if (level === 'pub') {
             drawBarrelRing(ctx, x, baseY);
+        } else if (level === 'rock') {
+            drawRockRing(ctx, x, baseY);
         } else {
             drawDirtRing(ctx, x, baseY);
         }
@@ -200,6 +206,82 @@ function drawDirtRing(ctx, x, y) {
         const ly = y + Math.sin(angle) * 10;
         ctx.beginPath();
         ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// === Rock Level: Stage Trapdoor ===
+function drawRockTrapdoor(ctx, x, y) {
+    const t = Date.now() * 0.003;
+    // Dark trapdoor opening
+    ctx.fillStyle = '#050508';
+    ctx.beginPath();
+    ctx.ellipse(x, y, 28, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Neon edge glow
+    const hue = (t * 15) % 360;
+    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, 0.5)`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 30, 11, 0, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+function drawRockDisturbance(ctx, x, y, phase) {
+    const t = Date.now() * 0.003;
+    // Vibrating trapdoor panel
+    const shake = Math.sin(phase * 8) * 2;
+
+    // Closed trapdoor
+    ctx.fillStyle = '#1a1a22';
+    ctx.beginPath();
+    ctx.ellipse(x + shake, y, 26, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Metal bolts
+    ctx.fillStyle = '#444';
+    for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.arc(x + shake + Math.cos(angle) * 20, y + Math.sin(angle) * 7, 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Pulsing glow from beneath
+    const glow = 0.3 + Math.sin(phase * 4) * 0.2;
+    const hue = (t * 15) % 360;
+    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${glow})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(x + shake, y, 28, 11, 0, 0, Math.PI * 2);
+    ctx.stroke();
+}
+
+function drawRockRing(ctx, x, y) {
+    const t = Date.now() * 0.003;
+    const hue = (t * 15) % 360;
+
+    // Metal grate frame
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 32, 12, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Inner neon ring
+    ctx.strokeStyle = `hsla(${hue}, 100%, 55%, 0.6)`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 30, 11, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Corner bolts
+    ctx.fillStyle = '#666';
+    for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2 + 0.4;
+        ctx.beginPath();
+        ctx.arc(x + Math.cos(angle) * 28, y + Math.sin(angle) * 10, 3, 0, Math.PI * 2);
         ctx.fill();
     }
 }

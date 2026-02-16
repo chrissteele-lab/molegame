@@ -25,6 +25,8 @@ export function updateBackground(dt, isFrozen) {
 export function drawBackground(ctx, level = 'lawn') {
     if (level === 'pub') {
         drawPubBackground(ctx);
+    } else if (level === 'rock') {
+        drawRockBackground(ctx);
     } else {
         drawLawnBackground(ctx);
     }
@@ -112,6 +114,135 @@ function drawPubBackground(ctx) {
 
     // === HUD background ===
     ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(0, HUD_TOP, VIRTUAL_WIDTH, VIRTUAL_HEIGHT - HUD_TOP);
+}
+
+function drawRockBackground(ctx) {
+    const t = Date.now() * 0.001;
+
+    // === Dark venue backdrop ===
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, HORIZON_Y);
+    bgGrad.addColorStop(0, '#0a0012');
+    bgGrad.addColorStop(1, '#1a0a2e');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, VIRTUAL_WIDTH, HORIZON_Y);
+
+    // === Spotlights (sweeping beams from ceiling) ===
+    const spotColors = [
+        `hsla(${(t * 30) % 360}, 100%, 60%, 0.08)`,
+        `hsla(${(t * 30 + 120) % 360}, 100%, 60%, 0.08)`,
+        `hsla(${(t * 30 + 240) % 360}, 100%, 60%, 0.06)`,
+    ];
+    for (let i = 0; i < 3; i++) {
+        const angle = Math.sin(t * 0.5 + i * 2.1) * 0.4;
+        const baseX = VIRTUAL_WIDTH * (0.2 + i * 0.3);
+        ctx.save();
+        ctx.translate(baseX, 0);
+        ctx.rotate(angle);
+        ctx.fillStyle = spotColors[i];
+        ctx.beginPath();
+        ctx.moveTo(-8, 0);
+        ctx.lineTo(-120, HORIZON_Y + 100);
+        ctx.lineTo(120, HORIZON_Y + 100);
+        ctx.lineTo(8, 0);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // === Speaker stacks (left & right) ===
+    for (let side = 0; side <= 1; side++) {
+        const sx = side === 0 ? 20 : VIRTUAL_WIDTH - 80;
+        // Stack of 3 speakers
+        for (let row = 0; row < 3; row++) {
+            const sy = HORIZON_Y - 110 + row * 40;
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(sx, sy, 60, 36);
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(sx, sy, 60, 36);
+            // Speaker cone
+            ctx.fillStyle = '#222';
+            ctx.beginPath();
+            ctx.arc(sx + 30, sy + 18, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(sx + 30, sy + 18, 12, 0, Math.PI * 2);
+            ctx.stroke();
+            // Center cap
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(sx + 30, sy + 18, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // === Crowd silhouette (bottom of backdrop) ===
+    ctx.fillStyle = '#0d0d1a';
+    ctx.beginPath();
+    ctx.moveTo(0, HORIZON_Y);
+    for (let cx = 0; cx < VIRTUAL_WIDTH; cx += 18) {
+        const headH = 10 + Math.sin(cx * 0.15 + t * 2) * 4 + Math.sin(cx * 0.07) * 6;
+        ctx.lineTo(cx, HORIZON_Y - headH);
+        ctx.lineTo(cx + 9, HORIZON_Y - headH - 5 - Math.sin(cx * 0.1 + t * 3) * 3);
+        ctx.lineTo(cx + 18, HORIZON_Y - headH);
+    }
+    ctx.lineTo(VIRTUAL_WIDTH, HORIZON_Y);
+    ctx.fill();
+
+    // Raised hands in crowd
+    ctx.strokeStyle = 'rgba(30, 20, 50, 0.8)';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 8; i++) {
+        const hx = 80 + i * 150 + Math.sin(i * 4.3) * 30;
+        const bounceY = Math.sin(t * 3 + i * 1.7) * 5;
+        ctx.beginPath();
+        ctx.moveTo(hx, HORIZON_Y - 5);
+        ctx.lineTo(hx + 3, HORIZON_Y - 25 + bounceY);
+        ctx.stroke();
+    }
+
+    // === Stage floor ===
+    const stageGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, LAWN_BOTTOM);
+    stageGrad.addColorStop(0, '#1a1a1a');
+    stageGrad.addColorStop(1, '#111');
+    ctx.fillStyle = stageGrad;
+    ctx.fillRect(0, LAWN_TOP, VIRTUAL_WIDTH, LAWN_HEIGHT);
+
+    // Stage floor grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < VIRTUAL_WIDTH; x += 80) {
+        ctx.beginPath();
+        ctx.moveTo(x, LAWN_TOP);
+        ctx.lineTo(x, LAWN_BOTTOM);
+        ctx.stroke();
+    }
+    for (let y = LAWN_TOP; y < LAWN_BOTTOM; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(VIRTUAL_WIDTH, y);
+        ctx.stroke();
+    }
+
+    // Stage front edge (light strip)
+    ctx.strokeStyle = `hsla(${(t * 40) % 360}, 80%, 60%, 0.4)`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, LAWN_BOTTOM);
+    ctx.lineTo(VIRTUAL_WIDTH, LAWN_BOTTOM);
+    ctx.stroke();
+
+    // === Below stage (pit area) ===
+    const pitGrad = ctx.createLinearGradient(0, SOIL_TOP, 0, SOIL_BOTTOM);
+    pitGrad.addColorStop(0, '#0d0d0d');
+    pitGrad.addColorStop(1, '#050505');
+    ctx.fillStyle = pitGrad;
+    ctx.fillRect(0, SOIL_TOP, VIRTUAL_WIDTH, SOIL_BOTTOM - SOIL_TOP);
+
+    // === HUD background ===
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
     ctx.fillRect(0, HUD_TOP, VIRTUAL_WIDTH, VIRTUAL_HEIGHT - HUD_TOP);
 }
 

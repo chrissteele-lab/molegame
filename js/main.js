@@ -89,20 +89,18 @@ function init() {
     // Level selection buttons
     const lawnBtn = document.getElementById('btn-level-lawn');
     const pubBtn = document.getElementById('btn-level-pub');
+    const rockBtn = document.getElementById('btn-level-rock');
+    const levelBtns = [lawnBtn, pubBtn, rockBtn].filter(Boolean);
 
-    if (lawnBtn && pubBtn) {
-        lawnBtn.addEventListener('click', () => {
-            selectedLevel = 'lawn';
-            lawnBtn.classList.add('active');
-            pubBtn.classList.remove('active');
-        });
-
-        pubBtn.addEventListener('click', () => {
-            selectedLevel = 'pub';
-            pubBtn.classList.add('active');
-            lawnBtn.classList.remove('active');
-        });
+    function selectLevel(level, btn) {
+        selectedLevel = level;
+        levelBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
     }
+
+    if (lawnBtn) lawnBtn.addEventListener('click', () => selectLevel('lawn', lawnBtn));
+    if (pubBtn) pubBtn.addEventListener('click', () => selectLevel('pub', pubBtn));
+    if (rockBtn) rockBtn.addEventListener('click', () => selectLevel('rock', rockBtn));
 
     // Click handler for gameplay
     setClickHandler((x, y) => {
@@ -187,7 +185,7 @@ function render() {
     // Draw layers
     drawBackground(ctx, selectedLevel);
     drawHoles(ctx, MoleManager.getMoles(), selectedLevel);
-    drawCharacter(ctx);
+    drawCharacter(ctx, selectedLevel);
     drawActiveMoles(ctx, MoleManager.getMoles(), selectedLevel);
     drawHUD(ctx);
     drawStunOverlay(ctx);
