@@ -90,7 +90,8 @@ function init() {
     const lawnBtn = document.getElementById('btn-level-lawn');
     const pubBtn = document.getElementById('btn-level-pub');
     const rockBtn = document.getElementById('btn-level-rock');
-    const levelBtns = [lawnBtn, pubBtn, rockBtn].filter(Boolean);
+    const bdayBtn = document.getElementById('btn-level-birthday');
+    const levelBtns = [lawnBtn, pubBtn, rockBtn, bdayBtn].filter(Boolean);
 
     function selectLevel(level, btn) {
         selectedLevel = level;
@@ -101,6 +102,7 @@ function init() {
     if (lawnBtn) lawnBtn.addEventListener('click', () => selectLevel('lawn', lawnBtn));
     if (pubBtn) pubBtn.addEventListener('click', () => selectLevel('pub', pubBtn));
     if (rockBtn) rockBtn.addEventListener('click', () => selectLevel('rock', rockBtn));
+    if (bdayBtn) bdayBtn.addEventListener('click', () => selectLevel('birthday', bdayBtn));
 
     // Click handler for gameplay
     setClickHandler((x, y) => {

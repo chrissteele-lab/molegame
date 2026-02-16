@@ -27,6 +27,8 @@ export function drawBackground(ctx, level = 'lawn') {
         drawPubBackground(ctx);
     } else if (level === 'rock') {
         drawRockBackground(ctx);
+    } else if (level === 'birthday') {
+        drawBirthdayBackground(ctx);
     } else {
         drawLawnBackground(ctx);
     }
@@ -414,4 +416,179 @@ function drawTree(ctx, x, y, size) {
     ctx.beginPath();
     ctx.arc(x + size * 0.3, y - size * 0.1, size * 0.7, 0, Math.PI * 2);
     ctx.fill();
+}
+
+function drawBirthdayBackground(ctx) {
+    const t = Date.now() * 0.001;
+
+    // === Party Room Walls ===
+    const wallGrad = ctx.createLinearGradient(0, 0, 0, HORIZON_Y);
+    wallGrad.addColorStop(0, '#ffe0f0');
+    wallGrad.addColorStop(1, '#ffd1e8');
+    ctx.fillStyle = wallGrad;
+    ctx.fillRect(0, 0, VIRTUAL_WIDTH, HORIZON_Y);
+
+    // Bunting / Triangular flags across top
+    const flagColors = ['#e53935', '#ffb300', '#43a047', '#1e88e5', '#8e24aa', '#f06292'];
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#aaa';
+    ctx.beginPath();
+    ctx.moveTo(0, 35);
+    ctx.lineTo(VIRTUAL_WIDTH, 30);
+    ctx.stroke();
+    for (let i = 0; i < 18; i++) {
+        const fx = i * (VIRTUAL_WIDTH / 18) + 15;
+        const fy = 32 + Math.sin(i * 0.8) * 3;
+        ctx.fillStyle = flagColors[i % flagColors.length];
+        ctx.beginPath();
+        ctx.moveTo(fx - 12, fy);
+        ctx.lineTo(fx + 12, fy);
+        ctx.lineTo(fx, fy + 22);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // "HAPPY BIRTHDAY" banner
+    ctx.fillStyle = '#e53935';
+    ctx.beginPath();
+    ctx.roundRect(VIRTUAL_WIDTH / 2 - 160, 60, 320, 40, 6);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎂 HAPPY BIRTHDAY! 🎂', VIRTUAL_WIDTH / 2, 87);
+
+    // Balloons (scattered, rising)
+    const balloonColors = ['#e53935', '#ffb300', '#43a047', '#1e88e5', '#e91e63', '#9c27b0'];
+    for (let i = 0; i < 10; i++) {
+        const bx = 50 + i * 130 + Math.sin(i * 3.7) * 40;
+        const by = 60 + Math.sin(t * 0.8 + i * 2.1) * 12 + i * 8;
+        const color = balloonColors[i % balloonColors.length];
+
+        // String
+        ctx.strokeStyle = '#999';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(bx, by + 18);
+        ctx.quadraticCurveTo(bx + Math.sin(t + i) * 5, by + 45, bx + 3, by + 60);
+        ctx.stroke();
+
+        // Balloon
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.ellipse(bx, by, 14, 18, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.beginPath();
+        ctx.ellipse(bx - 4, by - 6, 4, 7, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        // Knot
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(bx - 3, by + 17);
+        ctx.lineTo(bx + 3, by + 17);
+        ctx.lineTo(bx, by + 22);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Disco ball (top centre)
+    const dbx = VIRTUAL_WIDTH / 2;
+    const dby = 25;
+    ctx.strokeStyle = '#bbb';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(dbx, 0);
+    ctx.lineTo(dbx, dby);
+    ctx.stroke();
+    // Ball
+    ctx.fillStyle = '#ccc';
+    ctx.beginPath();
+    ctx.arc(dbx, dby + 10, 12, 0, Math.PI * 2);
+    ctx.fill();
+    // Facets
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2 + t * 2;
+        ctx.beginPath();
+        ctx.arc(dbx + Math.cos(a) * 6, dby + 10 + Math.sin(a) * 6, 3, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    // Light reflections on walls
+    for (let i = 0; i < 6; i++) {
+        const ra = t * 1.5 + i * 1.05;
+        const rx = dbx + Math.cos(ra) * (150 + i * 40);
+        const ry = 20 + Math.sin(ra * 0.7 + i) * 60 + 40;
+        if (rx > 0 && rx < VIRTUAL_WIDTH && ry < HORIZON_Y) {
+            ctx.fillStyle = `hsla(${(i * 60 + t * 30) % 360}, 80%, 70%, ${0.25 + Math.sin(t * 3 + i) * 0.1})`;
+            ctx.beginPath();
+            ctx.arc(rx, ry, 8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // === Confetti Floor (play area) ===
+    const floorGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, LAWN_BOTTOM);
+    floorGrad.addColorStop(0, '#fff5e6');
+    floorGrad.addColorStop(1, '#ffe0cc');
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, LAWN_TOP, VIRTUAL_WIDTH, LAWN_HEIGHT);
+
+    // Scattered confetti pieces (static pattern seeded by position)
+    for (let i = 0; i < 60; i++) {
+        const cx = (i * 97 + 13) % VIRTUAL_WIDTH;
+        const cy = LAWN_TOP + ((i * 61 + 29) % Math.floor(LAWN_HEIGHT));
+        const hue = (i * 47) % 360;
+        ctx.fillStyle = `hsla(${hue}, 80%, 60%, 0.3)`;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(i * 1.3);
+        ctx.fillRect(-4, -1.5, 8, 3);
+        ctx.restore();
+    }
+
+    // === Toy Train Track ===
+    const baseY = LAWN_TOP + LAWN_HEIGHT * 0.6;
+    const trackY = baseY + 47;
+
+    // Sleepers (wooden cross-ties)
+    ctx.fillStyle = '#8d6e63';
+    const sleeperSpacing = 30;
+    for (let x = -sleeperSpacing; x < VIRTUAL_WIDTH + sleeperSpacing; x += sleeperSpacing) {
+        const sx = x + (trackPhase % sleeperSpacing);
+        ctx.fillRect(sx - 2, trackY + 2, 4, 20);
+    }
+
+    // Rails
+    ctx.strokeStyle = '#9e9e9e';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, trackY + 5);
+    ctx.lineTo(VIRTUAL_WIDTH, trackY + 5);
+    ctx.moveTo(0, trackY + 19);
+    ctx.lineTo(VIRTUAL_WIDTH, trackY + 19);
+    ctx.stroke();
+
+    // Rail highlights
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, trackY + 4);
+    ctx.lineTo(VIRTUAL_WIDTH, trackY + 4);
+    ctx.moveTo(0, trackY + 18);
+    ctx.lineTo(VIRTUAL_WIDTH, trackY + 18);
+    ctx.stroke();
+
+    // === Below floor (carpet) ===
+    const carpetGrad = ctx.createLinearGradient(0, SOIL_TOP, 0, SOIL_BOTTOM);
+    carpetGrad.addColorStop(0, '#e8b4b8');
+    carpetGrad.addColorStop(1, '#d4878f');
+    ctx.fillStyle = carpetGrad;
+    ctx.fillRect(0, SOIL_TOP, VIRTUAL_WIDTH, SOIL_BOTTOM - SOIL_TOP);
+
+    // === HUD background ===
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(0, HUD_TOP, VIRTUAL_WIDTH, VIRTUAL_HEIGHT - HUD_TOP);
 }

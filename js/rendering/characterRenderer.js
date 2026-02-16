@@ -38,6 +38,8 @@ export function drawCharacter(ctx, level = 'lawn') {
     // === Body ===
     if (level === 'rock') {
         drawRockstarBody(ctx, isSwinging, swingProg, swingDir, isStunned);
+    } else if (level === 'birthday') {
+        drawBirthdayBody(ctx, isSwinging, swingProg, swingDir, isStunned);
     } else {
         drawBody(ctx, isSwinging, swingProg, swingDir, isStunned);
     }
@@ -45,6 +47,8 @@ export function drawCharacter(ctx, level = 'lawn') {
     // === Head with face ===
     if (level === 'rock') {
         drawRockstarHead(ctx, isStunned, stunProg);
+    } else if (level === 'birthday') {
+        drawBirthdayHead(ctx, isStunned, stunProg);
     } else {
         drawHead(ctx, isStunned, stunProg);
     }
@@ -52,6 +56,8 @@ export function drawCharacter(ctx, level = 'lawn') {
     // === Weapon ===
     if (level === 'rock') {
         drawGuitar(ctx, isSwinging, swingProg, swingDir);
+    } else if (level === 'birthday') {
+        drawPinataStick(ctx, isSwinging, swingProg, swingDir);
     } else {
         drawHammer(ctx, isSwinging, swingProg, swingDir);
     }
@@ -485,4 +491,173 @@ function drawStunStars(ctx, stunProg) {
         ctx.fillText('★', sx, sy);
     }
     ctx.globalAlpha = 1;
+}
+
+// ===== BIRTHDAY BODY (Party outfit) =====
+function drawBirthdayBody(ctx, isSwinging, swingProg, swingDir, isStunned) {
+    // Shorts (bright green)
+    ctx.fillStyle = '#43a047';
+    ctx.beginPath();
+    ctx.roundRect(-BODY_WIDTH / 2, -BODY_HEIGHT * 0.3, BODY_WIDTH, BODY_HEIGHT * 0.6, 8);
+    ctx.fill();
+
+    // Party shirt (colourful stripes)
+    const stripeColors = ['#e53935', '#ffb300', '#43a047', '#1e88e5', '#e91e63'];
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(-BODY_WIDTH * 0.4, -BODY_HEIGHT * 0.6, BODY_WIDTH * 0.8, BODY_HEIGHT * 0.35, 6);
+    ctx.clip();
+    for (let i = 0; i < stripeColors.length; i++) {
+        const sy = -BODY_HEIGHT * 0.6 + i * (BODY_HEIGHT * 0.35 / stripeColors.length);
+        ctx.fillStyle = stripeColors[i];
+        ctx.fillRect(-BODY_WIDTH * 0.4, sy, BODY_WIDTH * 0.8, BODY_HEIGHT * 0.35 / stripeColors.length + 1);
+    }
+    ctx.restore();
+
+    // Bow tie
+    ctx.fillStyle = '#e53935';
+    ctx.beginPath();
+    ctx.moveTo(-8, -BODY_HEIGHT * 0.58);
+    ctx.lineTo(0, -BODY_HEIGHT * 0.55);
+    ctx.lineTo(8, -BODY_HEIGHT * 0.58);
+    ctx.lineTo(0, -BODY_HEIGHT * 0.52);
+    ctx.closePath();
+    ctx.fill();
+
+    // Arms
+    const armAngle = isSwinging ? -0.5 + swingProg * 1.5 : 0.3;
+    ctx.save();
+    ctx.translate(-BODY_WIDTH * 0.4, -BODY_HEIGHT * 0.5);
+    ctx.rotate(-armAngle);
+    ctx.fillStyle = '#ffb300';
+    ctx.fillRect(-5, 0, 10, 35);
+    ctx.restore();
+    ctx.save();
+    ctx.translate(BODY_WIDTH * 0.4, -BODY_HEIGHT * 0.5);
+    ctx.rotate(armAngle);
+    ctx.fillStyle = '#ffb300';
+    ctx.fillRect(-5, 0, 10, 35);
+    ctx.restore();
+
+    // Legs
+    ctx.fillStyle = '#fdd835';
+    ctx.fillRect(-BODY_WIDTH * 0.25, BODY_HEIGHT * 0.15, 14, 22);
+    ctx.fillRect(BODY_WIDTH * 0.1, BODY_HEIGHT * 0.15, 14, 22);
+
+    // Shoes
+    ctx.fillStyle = '#1e88e5';
+    ctx.beginPath();
+    ctx.roundRect(-BODY_WIDTH * 0.27, BODY_HEIGHT * 0.33, 18, 10, 3);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect(BODY_WIDTH * 0.08, BODY_HEIGHT * 0.33, 18, 10, 3);
+    ctx.fill();
+}
+
+// ===== BIRTHDAY HEAD (with party hat) =====
+function drawBirthdayHead(ctx, isStunned, stunProg) {
+    const headY = -BODY_HEIGHT * 0.6 - HEAD_RADIUS;
+
+    // Head
+    ctx.fillStyle = '#FFD699';
+    ctx.beginPath();
+    ctx.arc(0, headY, HEAD_RADIUS, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Face
+    const faceImg = getActiveFace();
+    if (faceImg) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, headY, HEAD_RADIUS * 0.75, 0, Math.PI * 2);
+        ctx.clip();
+        const s = HEAD_RADIUS * 1.5;
+        ctx.drawImage(faceImg, -s / 2, headY - s / 2, s, s);
+        ctx.restore();
+    } else {
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(-10, headY - 5, 4, 0, Math.PI * 2);
+        ctx.arc(10, headY - 5, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, headY + 5, 8, 0.1, Math.PI - 0.1);
+        ctx.stroke();
+    }
+
+    // Party hat!
+    const hatBase = headY - HEAD_RADIUS + 2;
+    const hatColors = ['#e53935', '#ffb300', '#1e88e5'];
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(-18, hatBase + 5);
+    ctx.lineTo(0, hatBase - 35);
+    ctx.lineTo(18, hatBase + 5);
+    ctx.closePath();
+    ctx.clip();
+    for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = hatColors[i % hatColors.length];
+        const sy = hatBase - 35 + i * 8;
+        ctx.fillRect(-20, sy, 40, 9);
+    }
+    ctx.restore();
+    // Hat brim
+    ctx.fillStyle = '#ffb300';
+    ctx.beginPath();
+    ctx.ellipse(0, hatBase + 5, 20, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Pom-pom
+    ctx.fillStyle = '#e91e63';
+    ctx.beginPath();
+    ctx.arc(0, hatBase - 35, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Stun X eyes
+    if (isStunned) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#333';
+        ctx.beginPath();
+        ctx.moveTo(-14, headY - 8); ctx.lineTo(-6, headY - 2);
+        ctx.moveTo(-6, headY - 8); ctx.lineTo(-14, headY - 2);
+        ctx.moveTo(6, headY - 8); ctx.lineTo(14, headY - 2);
+        ctx.moveTo(14, headY - 8); ctx.lineTo(6, headY - 2);
+        ctx.stroke();
+    }
+}
+
+// ===== PIÑATA STICK (Birthday weapon) =====
+function drawPinataStick(ctx, isSwinging, swingProg, swingDir) {
+    ctx.save();
+    ctx.translate(-BODY_WIDTH * 0.45 - 28, -BODY_HEIGHT * 0.45);
+
+    if (isSwinging) {
+        ctx.rotate(-1.5 + swingProg * 3.0);
+    } else {
+        ctx.rotate(-1.2);
+    }
+
+    // Stick (colourful candy-stripe wrapped)
+    const stickColors = ['#e53935', '#ffb300', '#43a047', '#1e88e5', '#e91e63'];
+    for (let i = 0; i < 10; i++) {
+        ctx.fillStyle = stickColors[i % stickColors.length];
+        ctx.fillRect(-3, -55 + i * 5, 6, 6);
+    }
+
+    // Streamers at the tip
+    const t = Date.now() * 0.003;
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 4; i++) {
+        const hue = i * 90;
+        ctx.strokeStyle = `hsla(${hue}, 80%, 55%, 0.7)`;
+        ctx.beginPath();
+        ctx.moveTo(0, -55);
+        const sx = Math.sin(t + i * 1.5) * 12;
+        const sy = -55 - 10 - Math.cos(t * 0.7 + i) * 5;
+        ctx.quadraticCurveTo(sx * 0.5, -55 - 5, sx, sy);
+        ctx.stroke();
+    }
+
+    ctx.restore();
 }

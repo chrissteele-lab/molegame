@@ -18,6 +18,8 @@ export function drawHoles(ctx, moles, level = 'lawn') {
                 drawPubDisturbance(ctx, x, baseY, mole.dirtPhase);
             } else if (level === 'rock') {
                 drawRockDisturbance(ctx, x, baseY, mole.dirtPhase);
+            } else if (level === 'birthday') {
+                drawGiftDisturbance(ctx, x, baseY, mole.dirtPhase);
             } else {
                 drawDirtDisturbance(ctx, x, baseY, mole.dirtPhase);
             }
@@ -26,6 +28,8 @@ export function drawHoles(ctx, moles, level = 'lawn') {
                 drawBarrel(ctx, x, baseY);
             } else if (level === 'rock') {
                 drawRockTrapdoor(ctx, x, baseY);
+            } else if (level === 'birthday') {
+                drawGiftBox(ctx, x, baseY);
             } else {
                 drawHole(ctx, x, baseY);
             }
@@ -58,6 +62,8 @@ export function drawActiveMoles(ctx, moles, level = 'lawn') {
             drawBarrelRing(ctx, x, baseY);
         } else if (level === 'rock') {
             drawRockRing(ctx, x, baseY);
+        } else if (level === 'birthday') {
+            drawGiftRing(ctx, x, baseY);
         } else {
             drawDirtRing(ctx, x, baseY);
         }
@@ -294,6 +300,102 @@ function drawRockRing(ctx, x, y) {
     ctx.beginPath();
     ctx.ellipse(x, y - 20, 25, 40, 0, 0, Math.PI * 2);
     ctx.fill();
+}
+
+// === Birthday Level: Gift Box ===
+function drawGiftBox(ctx, x, y) {
+    // Wrapped present — dark opening
+    ctx.fillStyle = '#2a0a0a';
+    ctx.beginPath();
+    ctx.ellipse(x, y, 28, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawGiftDisturbance(ctx, x, y, phase) {
+    const wobble = Math.sin(phase * 6) * 3;
+    const t = Date.now() * 0.002;
+
+    // Gift box body
+    const boxW = 40, boxH = 32;
+    ctx.fillStyle = '#e53935';
+    ctx.beginPath();
+    ctx.roundRect(x - boxW / 2 + wobble, y - boxH, boxW, boxH, 3);
+    ctx.fill();
+
+    // Wrapping ribbon (vertical)
+    ctx.fillStyle = '#ffb300';
+    ctx.fillRect(x - 3 + wobble, y - boxH, 6, boxH);
+    // Wrapping ribbon (horizontal)
+    ctx.fillRect(x - boxW / 2 + wobble, y - boxH / 2 - 3, boxW, 6);
+
+    // Lid (closed, wobbling)
+    ctx.fillStyle = '#c62828';
+    ctx.beginPath();
+    ctx.roundRect(x - boxW / 2 - 3 + wobble, y - boxH - 6, boxW + 6, 8, 2);
+    ctx.fill();
+
+    // Bow on top
+    ctx.fillStyle = '#ffb300';
+    ctx.beginPath();
+    ctx.ellipse(x - 7 + wobble, y - boxH - 8, 6, 4, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(x + 7 + wobble, y - boxH - 8, 6, 4, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // Bow centre
+    ctx.beginPath();
+    ctx.arc(x + wobble, y - boxH - 7, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Jiggle indicator
+    const glow = 0.15 + Math.sin(phase * 3) * 0.1;
+    ctx.fillStyle = `rgba(255, 200, 0, ${glow})`;
+    ctx.beginPath();
+    ctx.ellipse(x, y - boxH / 2, boxW / 2 + 5, boxH / 2 + 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawGiftRing(ctx, x, y) {
+    const t = Date.now() * 0.002;
+
+    // Open gift box (bottom half visible, lid popped off)
+    const boxW = 42, boxH = 30;
+
+    // Box body (front half visible below mole)
+    ctx.fillStyle = '#e53935';
+    ctx.beginPath();
+    ctx.roundRect(x - boxW / 2, y, boxW, boxH * 0.6, [0, 0, 4, 4]);
+    ctx.fill();
+
+    // Ribbon on box body
+    ctx.fillStyle = '#ffb300';
+    ctx.fillRect(x - 3, y, 6, boxH * 0.6);
+    ctx.fillRect(x - boxW / 2, y + boxH * 0.2, boxW, 5);
+
+    // Popped-off lid (tilted to side)
+    ctx.save();
+    ctx.translate(x + boxW / 2 + 5, y - 5);
+    ctx.rotate(0.4 + Math.sin(t) * 0.05);
+    ctx.fillStyle = '#c62828';
+    ctx.beginPath();
+    ctx.roundRect(-boxW / 2 - 3, -4, boxW + 6, 8, 2);
+    ctx.fill();
+    // Lid ribbon
+    ctx.fillStyle = '#ffb300';
+    ctx.fillRect(-3, -4, 6, 8);
+    ctx.restore();
+
+    // Torn wrapping paper bits
+    ctx.fillStyle = 'rgba(229, 57, 53, 0.4)';
+    for (let i = 0; i < 5; i++) {
+        const angle = (i / 5) * Math.PI * 2 + t * 0.3;
+        const r = boxW / 2 + 8;
+        ctx.save();
+        ctx.translate(x + Math.cos(angle) * r, y + Math.sin(angle) * (r * 0.4));
+        ctx.rotate(angle + t * 0.5);
+        ctx.fillRect(-4, -2, 8, 4);
+        ctx.restore();
+    }
 }
 
 function drawMoleBody(ctx, x, y, mole) {
