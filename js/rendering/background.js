@@ -191,50 +191,69 @@ function drawRockBackground(ctx) {
     ctx.lineTo(VIRTUAL_WIDTH, HORIZON_Y);
     ctx.fill();
 
-    // Raised hands in crowd
-    ctx.strokeStyle = 'rgba(30, 20, 50, 0.8)';
-    ctx.lineWidth = 3;
-    for (let i = 0; i < 8; i++) {
-        const hx = 80 + i * 150 + Math.sin(i * 4.3) * 30;
-        const bounceY = Math.sin(t * 3 + i * 1.7) * 5;
-        ctx.beginPath();
-        ctx.moveTo(hx, HORIZON_Y - 5);
-        ctx.lineTo(hx + 3, HORIZON_Y - 25 + bounceY);
-        ctx.stroke();
-    }
-
-    // === Stage floor ===
-    const stageGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, LAWN_BOTTOM);
-    stageGrad.addColorStop(0, '#1a1a1a');
-    stageGrad.addColorStop(1, '#111');
-    ctx.fillStyle = stageGrad;
+    // === Dense Crowd (fills the entire LAWN play area) ===
+    // Dark base for the crowd
+    const crowdGrad = ctx.createLinearGradient(0, LAWN_TOP, 0, LAWN_BOTTOM);
+    crowdGrad.addColorStop(0, '#0d0a15');
+    crowdGrad.addColorStop(1, '#08060e');
+    ctx.fillStyle = crowdGrad;
     ctx.fillRect(0, LAWN_TOP, VIRTUAL_WIDTH, LAWN_HEIGHT);
 
-    // Stage floor grid lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < VIRTUAL_WIDTH; x += 80) {
-        ctx.beginPath();
-        ctx.moveTo(x, LAWN_TOP);
-        ctx.lineTo(x, LAWN_BOTTOM);
-        ctx.stroke();
-    }
-    for (let y = LAWN_TOP; y < LAWN_BOTTOM; y += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(VIRTUAL_WIDTH, y);
-        ctx.stroke();
+    // Draw rows of crowd heads (back to front, getting larger)
+    const rows = 5;
+    for (let row = 0; row < rows; row++) {
+        const rowY = LAWN_TOP + (row / rows) * LAWN_HEIGHT + LAWN_HEIGHT * 0.15;
+        const headSize = 6 + row * 2.5;
+        const spacing = 22 + row * 4;
+        const rowOffset = (row % 2) * (spacing / 2);
+        const darkness = 0.2 + row * 0.12;
+
+        for (let cx = rowOffset; cx < VIRTUAL_WIDTH + spacing; cx += spacing) {
+            const bounce = Math.sin(t * 2.5 + cx * 0.08 + row * 1.3) * (2 + row * 0.5);
+            const sway = Math.sin(t * 1.8 + cx * 0.05 + row * 0.7) * 2;
+            const hx = cx + sway;
+            const hy = rowY + bounce;
+
+            // Shoulders
+            ctx.fillStyle = `rgba(${20 + row * 10}, ${15 + row * 8}, ${30 + row * 12}, ${darkness})`;
+            ctx.beginPath();
+            ctx.ellipse(hx, hy + headSize * 0.8, headSize * 1.3, headSize * 0.5, 0, 0, Math.PI);
+            ctx.fill();
+
+            // Head
+            ctx.fillStyle = `rgba(${30 + row * 12}, ${20 + row * 10}, ${40 + row * 14}, ${darkness + 0.1})`;
+            ctx.beginPath();
+            ctx.arc(hx, hy, headSize, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
-    // Stage front edge (light strip)
-    ctx.strokeStyle = `hsla(${(t * 40) % 360}, 80%, 60%, 0.4)`;
+    // Raised hands (scattered, animated)
     ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(0, LAWN_BOTTOM);
-    ctx.lineTo(VIRTUAL_WIDTH, LAWN_BOTTOM);
-    ctx.stroke();
+    for (let i = 0; i < 15; i++) {
+        const hx = 40 + i * 90 + Math.sin(i * 4.3) * 30;
+        const baseRowY = LAWN_TOP + ((i * 3) % rows) / rows * LAWN_HEIGHT + LAWN_HEIGHT * 0.15;
+        const bounceY = Math.sin(t * 3 + i * 1.7) * 8;
+        const handH = 18 + Math.sin(t * 2 + i * 2.3) * 5;
+        const hue = (t * 30 + i * 40) % 360;
 
-    // === Below stage (pit area) ===
+        // Arm
+        ctx.strokeStyle = `hsla(${hue}, 20%, 25%, 0.4)`;
+        ctx.beginPath();
+        ctx.moveTo(hx, baseRowY + 5);
+        ctx.lineTo(hx + 2, baseRowY - handH + bounceY);
+        ctx.stroke();
+
+        // Phone/lighter glow
+        if (i % 3 === 0) {
+            ctx.fillStyle = `hsla(${hue}, 50%, 60%, ${0.3 + Math.sin(t * 4 + i) * 0.15})`;
+            ctx.beginPath();
+            ctx.arc(hx + 2, baseRowY - handH + bounceY - 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // === Below crowd (dark pit) ===
     const pitGrad = ctx.createLinearGradient(0, SOIL_TOP, 0, SOIL_BOTTOM);
     pitGrad.addColorStop(0, '#0d0d0d');
     pitGrad.addColorStop(1, '#050505');

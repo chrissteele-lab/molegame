@@ -364,7 +364,7 @@ function drawHead(ctx, isStunned, stunProg) {
     ctx.restore();
 }
 
-// ===== GUITAR (Rock weapon) =====
+// ===== GUITAR (Rock weapon — held by neck, body swings) =====
 function drawGuitar(ctx, isSwinging, swingProg, swingDir) {
     ctx.save();
     ctx.translate(-BODY_WIDTH * 0.45 - 28, -BODY_HEIGHT * 0.45);
@@ -375,63 +375,64 @@ function drawGuitar(ctx, isSwinging, swingProg, swingDir) {
         ctx.rotate(-1.2);
     }
 
-    // Neck
+    // --- Neck (near the hand, bottom portion) ---
     ctx.fillStyle = '#5D4037';
-    ctx.fillRect(-3, -55, 6, 45);
+    ctx.fillRect(-3, -45, 6, 45);
 
-    // Frets
+    // Frets on neck
     ctx.strokeStyle = '#aaa';
     ctx.lineWidth = 1;
     for (let i = 0; i < 5; i++) {
-        const fy = -50 + i * 8;
+        const fy = -40 + i * 8;
         ctx.beginPath();
         ctx.moveTo(-3, fy);
         ctx.lineTo(3, fy);
         ctx.stroke();
     }
 
-    // Strings
+    // Strings running up the neck
     ctx.strokeStyle = 'rgba(200,200,200,0.4)';
     ctx.lineWidth = 0.5;
     for (let i = -1; i <= 1; i++) {
         ctx.beginPath();
-        ctx.moveTo(i * 2, -55);
-        ctx.lineTo(i * 2, -10);
+        ctx.moveTo(i * 2, -45);
+        ctx.lineTo(i * 2, 0);
         ctx.stroke();
     }
 
-    // Headstock
-    ctx.fillStyle = '#333';
-    ctx.beginPath();
-    ctx.roundRect(-5, -62, 10, 10, 2);
-    ctx.fill();
-    ctx.fillStyle = '#888';
-    ctx.beginPath(); ctx.arc(-7, -58, 2, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(7, -55, 2, 0, Math.PI * 2); ctx.fill();
-
-    // Guitar body (double cutaway)
+    // --- Guitar body (far end = striking end, at the top) ---
     ctx.fillStyle = '#c62828';
     ctx.beginPath();
-    ctx.ellipse(0, -5, 16, 12, 0.1, 0, Math.PI * 2);
+    ctx.ellipse(0, -55, 16, 12, 0.1, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.ellipse(0, 8, 14, 10, -0.1, 0, Math.PI * 2);
+    ctx.ellipse(0, -68, 14, 10, -0.1, 0, Math.PI * 2);
     ctx.fill();
 
     // Pickguard
     ctx.fillStyle = '#eee';
     ctx.beginPath();
-    ctx.ellipse(3, -3, 6, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(3, -57, 6, 4, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Pickups
     ctx.fillStyle = '#333';
-    ctx.fillRect(-5, -8, 10, 3);
-    ctx.fillRect(-4, 2, 8, 3);
+    ctx.fillRect(-5, -52, 10, 3);
+    ctx.fillRect(-4, -62, 8, 3);
 
     // Bridge
     ctx.fillStyle = '#888';
-    ctx.fillRect(-4, 10, 8, 2);
+    ctx.fillRect(-4, -70, 8, 2);
+
+    // --- Headstock (at the very bottom, near the hand) ---
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.roundRect(-5, -2, 10, 10, 2);
+    ctx.fill();
+    // Tuning pegs
+    ctx.fillStyle = '#888';
+    ctx.beginPath(); ctx.arc(-7, 4, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(7, 6, 2, 0, Math.PI * 2); ctx.fill();
 
     ctx.restore();
 }

@@ -210,80 +210,90 @@ function drawDirtRing(ctx, x, y) {
     }
 }
 
-// === Rock Level: Stage Trapdoor ===
+// === Rock Level: Crowd Gap ===
 function drawRockTrapdoor(ctx, x, y) {
-    const t = Date.now() * 0.003;
-    // Dark trapdoor opening
-    ctx.fillStyle = '#050508';
+    // Dark gap in the crowd where someone can pop up
+    ctx.fillStyle = '#05030a';
     ctx.beginPath();
     ctx.ellipse(x, y, 28, 10, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Neon edge glow
-    const hue = (t * 15) % 360;
-    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, 0.5)`;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(x, y, 30, 11, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    // Surrounding crowd shoulders (heads around the gap)
+    const t = Date.now() * 0.002;
+    for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2 + t * 0.3;
+        const r = 24;
+        const hx = x + Math.cos(angle) * r;
+        const hy = y + Math.sin(angle) * (r * 0.35);
+        const bob = Math.sin(t * 2 + i * 1.5) * 1.5;
+
+        ctx.fillStyle = `rgba(25, 18, 40, ${0.5 + Math.sin(i + t) * 0.1})`;
+        ctx.beginPath();
+        ctx.arc(hx, hy + bob, 5, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
 
 function drawRockDisturbance(ctx, x, y, phase) {
-    const t = Date.now() * 0.003;
-    // Vibrating trapdoor panel
-    const shake = Math.sin(phase * 8) * 2;
+    const t = Date.now() * 0.002;
+    const ripple = Math.sin(phase * 6) * 3;
 
-    // Closed trapdoor
-    ctx.fillStyle = '#1a1a22';
+    // Dark gap forming as crowd parts
+    ctx.fillStyle = '#08050f';
     ctx.beginPath();
-    ctx.ellipse(x + shake, y, 26, 10, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y, 20 + Math.abs(ripple), 8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Metal bolts
-    ctx.fillStyle = '#444';
-    for (let i = 0; i < 4; i++) {
-        const angle = (i / 4) * Math.PI * 2;
+    // Heads being pushed aside
+    for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const pushOut = 22 + Math.sin(phase * 4 + i * 2) * 4;
+        const hx = x + Math.cos(angle) * pushOut;
+        const hy = y + Math.sin(angle) * (pushOut * 0.35);
+        const bob = Math.sin(t * 3 + i * 1.8) * 2;
+
+        ctx.fillStyle = `rgba(30, 22, 48, ${0.5 + Math.sin(phase + i) * 0.15})`;
         ctx.beginPath();
-        ctx.arc(x + shake + Math.cos(angle) * 20, y + Math.sin(angle) * 7, 2, 0, Math.PI * 2);
+        ctx.arc(hx, hy + bob, 5.5, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    // Pulsing glow from beneath
-    const glow = 0.3 + Math.sin(phase * 4) * 0.2;
-    const hue = (t * 15) % 360;
-    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${glow})`;
-    ctx.lineWidth = 3;
+    // Faint glow from below (something's coming up)
+    const glow = 0.15 + Math.sin(phase * 3) * 0.1;
+    ctx.fillStyle = `rgba(180, 100, 255, ${glow})`;
     ctx.beginPath();
-    ctx.ellipse(x + shake, y, 28, 11, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.ellipse(x, y, 15, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
 }
 
 function drawRockRing(ctx, x, y) {
-    const t = Date.now() * 0.003;
-    const hue = (t * 15) % 360;
+    const t = Date.now() * 0.002;
 
-    // Metal grate frame
-    ctx.strokeStyle = '#555';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.ellipse(x, y, 32, 12, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    // Crowd parting around the mole — shoulders forming a ring
+    for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2 + t * 0.2;
+        const r = 30;
+        const hx = x + Math.cos(angle) * r;
+        const hy = y + Math.sin(angle) * (r * 0.38);
+        const bob = Math.sin(t * 2.5 + i * 1.2) * 1.5;
 
-    // Inner neon ring
-    ctx.strokeStyle = `hsla(${hue}, 100%, 55%, 0.6)`;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(x, y, 30, 11, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Corner bolts
-    ctx.fillStyle = '#666';
-    for (let i = 0; i < 4; i++) {
-        const angle = (i / 4) * Math.PI * 2 + 0.4;
+        // Shoulder
+        ctx.fillStyle = `rgba(35, 25, 55, ${0.55 + Math.sin(i * 0.8 + t) * 0.1})`;
         ctx.beginPath();
-        ctx.arc(x + Math.cos(angle) * 28, y + Math.sin(angle) * 10, 3, 0, Math.PI * 2);
+        ctx.ellipse(hx, hy + bob + 3, 7, 4, angle * 0.3, 0, Math.PI);
+        ctx.fill();
+        // Head
+        ctx.fillStyle = `rgba(40, 30, 60, ${0.6 + Math.sin(i + t) * 0.1})`;
+        ctx.beginPath();
+        ctx.arc(hx, hy + bob, 5, 0, Math.PI * 2);
         ctx.fill();
     }
+
+    // Faint purple spotlight on the emerging mole
+    ctx.fillStyle = `rgba(150, 80, 220, ${0.08 + Math.sin(t * 3) * 0.04})`;
+    ctx.beginPath();
+    ctx.ellipse(x, y - 20, 25, 40, 0, 0, Math.PI * 2);
+    ctx.fill();
 }
 
 function drawMoleBody(ctx, x, y, mole) {
